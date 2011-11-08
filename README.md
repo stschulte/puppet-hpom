@@ -9,6 +9,7 @@ Installation
 ------------
 
 Generally you need the following
+
 * HP Operations Manager server should run on Unix and currently only OML9 is supported.
   While the types may run on older releases of OML have not been tested there.
 * For the om\_node type to work you need the HP OVO API installed. You should be able to get
