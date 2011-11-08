@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+
+<!DOCTYPE OVOHeartBeat
+  SYSTEM "db/importer.dtd">
+
+<OVOHeartBeat>
+  <Hosts>
+    <Host name="www.example.com"/>
+    <Host name="test01.example.com"/>
+    <Host name="second-test.example.com"/>
+  </Hosts>
+  <HeartBeats>
+    <HeartBeat name="SimpleHeartBeat"
+        active="1"               continous="0"
+        pulse="720"              range="0000-2400"
+        severity="critical"      application="OM opcmsg"
+        object="HeartBeat"       group="HeartBeat"
+        goodText="SimpleHeartBeat back to normal"
+        badText="Oh god, SimpleHeartBeat is missing!"
+      >
+      <Rule host="www.example.com"/>
+    </HeartBeat>
+    <HeartBeat name="AdvancedHeartBeat"
+        active="1"               continous="0"
+        pulse="720"             range="0000-2400"
+        severity="critical"      application="OM opcle"
+        object="HeartBeat"       group="HearBeat"
+        goodText="AdvancedHeartBeat back to normal"
+        badText="No AdvancedHeartBeat received"
+      >
+      <Rule host="second-test.example.com"/>
+      <Rule host="www.example.com"/>
+      <Rule>test01.example.com</Rule>
+    </HeartBeat>
+    <HeartBeat name="EmptyHeartBeat"
+        active="1"               continous="0"
+        pulse="720"             range="0000-2400"
+        severity="critical"      application="Test"
+        object="HeartBeat"       group="HearBeat"
+        goodText="EmptyHeartBeat: good"
+        badText="EmptyHeartBeat: bad"
+      >
+    </HeartBeat>
+  </HeartBeats>
+</OVOHeartBeat>

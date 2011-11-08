@@ -68,6 +68,34 @@ because the type makes use of some default values the above example can also be 
       ],
     }
 
+### om\_hearbeat type
+
+The om\_heartbeat type configures different heartbeats for your nodes.
+This type is probably useless to you because it configures an xml file that is used by an
+external (an closed source) program. I just wanted to share it anyways because it may work
+as an example on how to parse xml files and configure entries with puppet
+
+The heartbeat configuration file has the following basic structure:
+
+    <OVOHeartBeat>
+      <Hosts>
+        <Host name="foo.domain.tld"/>
+      </Hosts>
+      <HeartBeats>
+        <HeartBeat name="hearbeat01"/>
+          <Rule host="foo.domain.tld"/>
+        </HeartBeat>
+      </HeartBeats>
+    </OVOHeartBeat>
+
+The puppet type can now be used to describe the heartbeat configuration. The above example can be expressed like this
+
+    om_heartbeat { 'foo.domain.tld':
+      ensure     => present,
+      heartbeats => [ 'heartbeat01' ],
+    }
+
+You have to have nokogiri installed to be able to use the nokogiri provider (the only one so far).
 
 ### om\_fsmon
 
