@@ -1,0 +1,24 @@
+host1.example.com
+        label              : host1
+        cert               : (none)
+        ipaddress          : 10.0.0.1
+        network_type       : NETWORK_IP
+        machine_type       : MACH_BBC_SOL10_X86
+        communication_type : COMM_BBC
+        node_type          : MONITORED
+        dynamic_ip         : no
+        layout_groups      : Unix
+                             /Hier1/Solaris/Intel
+        node_groups        : M-Solaris
+                             M-SAP
+router.example.com
+        label              : router
+        cert               : (none)
+        ipaddress          : 0.0.0.0
+        network_type       : PATTERN_IP_NAME
+        machine_type       : MACH_OTHER
+        communication_type : COMM_UNSPEC_COMM
+        node_type          : MESSAGE_ALLOWED
+        dynamic_ip         : no
+        layout_groups      : (none)
+        node_groups        : (none)
