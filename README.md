@@ -10,25 +10,45 @@ Installation
 
 Generally you need the following
 
-* HP Operations Manager server should run on Unix and currently only OML9 is supported.
-  While the types may run on older releases of OML have not been tested there.
+* Your HP Operations Manager server should run on Unix (OMU) or Linux (OML), Windows (OMW) is
+  currently not supported. The server types have only been tested on Linux and with OML 9. Older
+  versions /might/ work out of the box or with slight changes (different paths, command line
+  parameters etc).
 * For the om\_node type to work you need the HP OVO API installed. You should be able to get
-  the API for free if you already use HP OVO. You also have to install the perl bindings
-  (you may find installation instructions in the links section). Make sure you can
-  run the opcnodehelper.pl script inside the provider directory on the management server.
-* To make use of the types copy this directory in your module's path. Make sure you have
-  activated pluginsync in your agent's config.
+  the API for free if you already own a HP OML license. You also have to install the perl
+  bindings for the OVO API. Installation instructions can be found in the links section.
+  If you have correctly installed the OVO API you should be able to run the `opcnodehelper.pl`
+  script inside the opcnode provider directory.
+* To be able to use the custom types in this repository make sure that you copy the lib directory
+  in a valid module directory. You also have to active `pluginsync` in your agent's config.
 
-Usage
------
+New facts
+---------
+(currently none)
+
+New functions
+-------------
+(currently none)
+
+New custom types
+----------------
 
 ### om\_node type
 
-The node type can be used to create a node that is assigned to specific node groups and is placed inside differen layout groups.
-It does currently not handle direct policy assignments nor policy group assignments. It uses the `opcnode` command to create, delete
-or modify a node but uses the `opcnodehelper.pl` script to read current node information from the OVO database. The provider does not
-support changing a node's label (the provider will raise an error in case label is out of sync) because the `opcnode` command simply
-does not have a command line argument for that task.
+The om\_node type can be used on your management server to describe a node with
+its label, machine type and communication type. You can also assign
+layoutgroups and nodegroups to your node. It is currently not possible to
+describe direct policy assignments or policy group assignments.
+
+The provider for that type uses the `opcnodehelper.pl` script to read current
+node information from the OVO database, so you have to install the OVO API
+and the perl bindings to be able to use the om\_node type. The perl script
+does only do read operations if the provider detects a change it uses the
+`opcnode` command to perfom the change. Because the command does not have
+command lines arguments for all properties a few state changes are not
+supported and have to be performed manually (e.g. chaning a node's label).
+
+Example usage:
 
     om_node { 'testnode01.example.com':
       ensure             => present,
@@ -69,9 +89,14 @@ because the type makes use of some default values the above example can also be 
       ],
     }
 
+You get the best benefit if you use storeconfig and every puppet node exports a `om_node` resource.
+On you OML master you now just have to collect all OM nodes:
+
+    Om_node<<| |>>
+
 ### om\_hearbeat type
 
-The om\_heartbeat type configures different heartbeats for your nodes.
+The om\_heartbeat type configures different heartbeats for a specific node.
 This type is probably useless to you because it configures an xml file that is used by an
 external (an closed source) program. I just wanted to share it anyways because it may work
 as an example on how to parse xml files and configure entries with puppet
@@ -100,10 +125,14 @@ You have to have nokogiri installed to be able to use the nokogiri provider (the
 
 ### om\_fsmon
 
-The om\_fsmon type is used to control filesystem monitor thresholds for the HP System Infrastructure SPI. The
-Infrastrutcture SPI allows to define thresholds overwrites with the agent config variables SpaceUtilWarningThreshold,
-SpaceUtilMinorThreshold, SpaceUtilMajorThreshold and SpaceUtilCriticalThreshold. The om\_fsmon type can now be used
-to set these config settings:
+If you use the HP System Infrastructure SPI to monitor your filesystems you can define custom
+thresholds on a per node basis. The custom thresholds are stored as agent config variables.
+
+The om\_fsmon type allows you to set the `SpaceUtilWarningThreshold`, `SpaceUtilMinorThreshold`,
+`SpaceUtilMajorThreshold` and `SpaceUtilCriticalThreshold` settings by treating mountpoint you
+want to monitor as a resource.
+
+Sample usage:
 
     om_fsmon { '/mnt/a':
       warning  => absent, # unset any special threshold
@@ -126,12 +155,16 @@ to set these config settings:
       critical => '20'
     )
 
-will probably result in the following setting:
+If you apply a catalog with the resources above, puppet will finally set the following
+configuration options:
 
     SpaceUtilWarningThreshold=80,/mnt/b=60,/mnt/new=10
     SpaceUtilMinorThreshold=85,/mnt/a=50,/mnt/b=90
     SpaceUtilMajorThreshold=90,/mnt/a=10
     SpaceUtilCriticalThreshold=95,/mnt/new=20
+
+The provider uses the `ovconfget` and `ovconfset` binaries to change the
+agent's config
 
 Links
 -----
