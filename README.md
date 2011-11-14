@@ -24,7 +24,7 @@ Generally you need the following
 
 New facts
 ---------
-(currently none)
+* `opcagtversion`: The version of the agent that is running on the node
 
 New functions
 -------------
