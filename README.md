@@ -94,7 +94,7 @@ On you OML master you now just have to collect all OM nodes:
 
     Om_node<<| |>>
 
-### om\_hearbeat type
+### om\_heartbeat type
 
 The om\_heartbeat type configures different heartbeats for a specific node.
 This type is probably useless to you because it configures an xml file that is used by an
@@ -135,35 +135,33 @@ want to monitor as a resource.
 Sample usage:
 
     om_fsmon { '/mnt/a':
-      warning  => absent, # unset any special threshold
-      minor    => '50',
-      major    => '10',
-      critical => absent  # unset any special threshold
-    )
+      warning  => 10,
+      minor    => 20,
+      major    => 30,
+      critical => 40,
+    }
     om_fsmon { '/mnt/b':
-      warning => '60',
-      minor   => '90',
+      warning  => '50',
+      minor    => absent, # remove any special threshold
+      major    => absent, # remove any special threshold
+      critical => absent, # remove any special threshold
     )
-    om_fsmon { '/tmp':
-      warning  => absent,
-      minor    => absent,
-      major    => absent,
-      critical => absent,
-    )
-    om_fsmon { '/mnt/new':
-      warning  => '10',
-      critical => '20'
+    om_fsmon { '/mnt/c':
+      warning  => 101, # never raise a warning
+      minor    => 101, # never raise a minor message
+      major    => 101, # never raise a major message
+      critical => 101, # never raise a critical message
     )
 
 If you apply a catalog with the resources above, puppet will finally set the following
 configuration options:
 
-    SpaceUtilWarningThreshold=80,/mnt/b=60,/mnt/new=10
-    SpaceUtilMinorThreshold=85,/mnt/a=50,/mnt/b=90
-    SpaceUtilMajorThreshold=90,/mnt/a=10
-    SpaceUtilCriticalThreshold=95,/mnt/new=20
+    SpaceUtilWarningThreshold=80,/mnt/a=10,/mnt/b=50,/mnt/c=101
+    SpaceUtilMinorThreshold=85,/mnt/a=20,/mnt/c=101
+    SpaceUtilMajorThreshold=90,/mnt/a=30,/mnt/c=101
+    SpaceUtilCriticalThreshold=95,/mnt/a=40,/mnt/c=101
 
-The provider uses the `ovconfget` and `ovconfset` binaries to change the
+The provider uses the `ovconfget` and `ovconfchg` binaries to change the
 agent's config
 
 Links
