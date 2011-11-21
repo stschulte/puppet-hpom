@@ -10,7 +10,9 @@ Puppet::Type.type(:om_heartbeat).provide(:parse_nokogiri) do
   def self.document
     unless @document
       File.open(self.configfile,'r') do |f|
-        @document = Nokogiri::XML::Document.parse(f, nil, nil, Nokogiri::XML::ParseOptions::DEFAULT_XML | Nokogiri::XML::ParseOptions::NOBLANKS)
+        @document = Nokogiri::XML::Document.parse(f) do |config|
+          config.noblanks
+        end
       end
     end
     @document
