@@ -43,10 +43,10 @@ describe direct policy assignments or policy group assignments.
 The provider for that type uses the `opcnodehelper.pl` script to read current
 node information from the OVO database, so you have to install the OVO API
 and the perl bindings to be able to use the om\_node type. The perl script
-does only do read operations if the provider detects a change it uses the
-`opcnode` command to perfom the change. Because the command does not have
-command lines arguments for all properties a few state changes are not
-supported and have to be performed manually (e.g. chaning a node's label).
+does only do read operations. If a om\_node resource is out sync the provider
+uses the `opcnode` executable to perfom the change. Because the command does not have
+command line arguments for all properties a few state changes are not
+supported and have to be performed manually (e.g. changing a node's label).
 
 Example usage:
 
