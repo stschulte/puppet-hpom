@@ -171,6 +171,7 @@ module Puppet
 
     validate do
       if paths = @original_parameters[:layout_groups]
+        paths = [paths] unless paths.is_a? Array
         seen_hierarchies = []
         paths.each do |path|
           h = :NodeBank

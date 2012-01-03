@@ -24,7 +24,6 @@ module Puppet
 
       validate do |value|
         raise Puppet::Error, 'heartbeats have to be specified as an array, not a comma separated list' if value =~ /,/
-        super
       end
 
       def inclusive?
