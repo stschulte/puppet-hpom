@@ -1,0 +1,14 @@
+SYNTAX_VERSION 4
+
+ORACLE
+
+  HOME "/u01/app/oracle/product/11.2.0/dbhome_1"
+    DATABASE "OMLE" CONNECT "itouser/secret@host:1521/OMLE"
+      LOGFILE "/u01/app/oracle/diag/rdbms/omle/OMLE/trace/alert_OMLE.log"
+      FILTER 16 "tablespace_name not in (select tablespace_name from dba_tablespaces where contents = 'UNDO')"
+      FILTER 206 "tablespace_name not in (select tablespace_name from dba_tablespaces where contents = 'UNDO')"
+    DATABASE "OMLP" CONNECT "itouser/secret@host:1521/OMLP"
+      LOGFILE "/u01/app/oracle/diag/rdbms/omlp/OMLP/trace/alert_OMLP.log"
+      FILTER 16 "tablespace_name not in (select tablespace_name from dba_tablespaces where contents = 'UNDO')"
+      FILTER 206 "tablespace_name not in (select tablespace_name from dba_tablespaces where contents = 'UNDO')"
+    LISTENER "listener" CONNECT ""
