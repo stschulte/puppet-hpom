@@ -19,20 +19,8 @@ module Puppet
 
     ensurable
 
-    newproperty(:username) do
-      desc "The username that should be used to access the database"
-
-      validate do |value|
-        raise Puppet::Error, "Username must not contain whitespace: #{value}" if value =~ /\s/
-      end
-    end
-
-    newproperty(:password) do
-      desc "The password that should be used when connection to the database"
-
-      validate do |value|
-        raise Puppet::Error, "Password must not contain whitespace: #{value}" if value =~ /\s/
-      end
+    newproperty(:connect) do
+      desc "The connection string to connect to the database"
     end
 
     newproperty(:logfile) do
@@ -41,6 +29,21 @@ module Puppet
       validate do |value|
         raise Puppet::Error, "Logfile must be an absolute path: #{value}" unless value =~ /^\//
       end
+    end
+
+    newproperty(:home) do
+      desc "The homedirectory of the database server installation"
+
+      validate do |value|
+        raise Puppet::Error, "Home must be an absolute path: #{value}" unless value =~ /^\//
+      end
+    end
+
+    newproperty(:type) do
+      desc "The type of the database. Currently only oracle is supported"
+
+      newvalues :oracle
+      defaultto :oracle
     end
 
     newproperty(:filter, :parent => Puppet::Property::KeyValue) do

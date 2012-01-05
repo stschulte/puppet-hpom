@@ -21,7 +21,7 @@ describe Puppet::Type.type(:om_dbspi_database) do
       end
     end
 
-    [:ensure, :username, :password, :logfile, :filter ].each do |property|
+    [:ensure, :connect, :logfile, :filter, :home, :type ].each do |property|
       it "should have a #{property} property" do
         described_class.attrtype(property).should == :property
       end
@@ -63,33 +63,9 @@ describe Puppet::Type.type(:om_dbspi_database) do
       end
     end
 
-    describe "for username" do
-      it "should support a valid name" do
-        proc { described_class.new(:name => 'testdb', :username => 'itouser', :ensure => :present) }.should_not raise_error
-        proc { described_class.new(:name => 'testdb', :username => 'sys', :ensure => :present) }.should_not raise_error
-        proc { described_class.new(:name => 'testdb', :username => 'system', :ensure => :present) }.should_not raise_error
-        proc { described_class.new(:name => 'testdb', :username => 'my_fancy_user', :ensure => :present) }.should_not raise_error
-      end
-
-      it "should not support whitespace" do
-        proc { described_class.new(:name => 'testdb', :username => 'my user', :ensure => :present) }.should raise_error(Puppet::Error, /Username.*whitespace/)
-        proc { described_class.new(:name => 'testdb', :username => ' myuser', :ensure => :present) }.should raise_error(Puppet::Error, /Username.*whitespace/)
-        proc { described_class.new(:name => 'testdb', :username => 'myuser ', :ensure => :present) }.should raise_error(Puppet::Error, /Username.*whitespace/)
-        proc { described_class.new(:name => 'testdb', :username => "my\tuser", :ensure => :present) }.should raise_error(Puppet::Error, /Username.*whitespace/)
-      end
-    end
-
-    describe "for password" do
-      it "should support a valid password" do
-        proc { described_class.new(:name => 'testdb', :password => 'myfancepw', :ensure => :present) }.should_not raise_error
-        proc { described_class.new(:name => 'testdb', :password => 'myfan123!cepw', :ensure => :present) }.should_not raise_error
-      end
-
-      it "should not support whitespace" do
-        proc { described_class.new(:name => 'testdb', :password => 'my pw', :ensure => :present) }.should raise_error(Puppet::Error, /Password.*whitespace/)
-        proc { described_class.new(:name => 'testdb', :password => 'mypw ', :ensure => :present) }.should raise_error(Puppet::Error, /Password.*whitespace/)
-        proc { described_class.new(:name => 'testdb', :password => ' mypw', :ensure => :present) }.should raise_error(Puppet::Error, /Password.*whitespace/)
-        proc { described_class.new(:name => 'testdb', :password => "my\tpw", :ensure => :present) }.should raise_error(Puppet::Error, /Password.*whitespace/)
+    describe "for connect" do
+      it "should support a valid connectstring" do
+        proc { described_class.new(:name => 'testdb', :connect => 'user/password@host:1521/database', :ensure => :present) }.should_not raise_error
       end
     end
 
@@ -102,6 +78,34 @@ describe Puppet::Type.type(:om_dbspi_database) do
 
       it "should not support a relative path" do
         proc { described_class.new(:name => 'testdb', :logfile => 'testdb/alert.log', :ensure => :present) }.should raise_error(Puppet::Error, /Logfile must be an absolute path/)
+      end
+    end
+
+    describe "for home" do
+      it "should support a valid path" do
+        proc { described_class.new(:name => 'testdb', :home => '/', :ensure => :present) }.should_not raise_error
+        proc { described_class.new(:name => 'testdb', :home => '/u01/app/oracle/product/11.2.0/dbhome_1', :ensure => :present) }.should_not raise_error
+      end
+
+      it "should not support a relative path" do
+        proc { described_class.new(:name => 'testdb', :home => '11.2.0/dbhome_1', :ensure => :present) }.should raise_error(Puppet::Error, /Home must be an absolute path/)
+        proc { described_class.new(:name => 'testdb', :home => 'dbhome_1', :ensure => :present) }.should raise_error(Puppet::Error, /Home must be an absolute path/)
+      end
+    end
+
+    describe "for type" do
+      [:oracle].each do |type|
+        it "should support #{type}" do
+          proc { described_class.new(:name => 'testdb', :type => type, :ensure => :present) }.should_not raise_error
+        end
+      end
+
+      it "should default to oracle" do
+        described_class.new(:name => 'testdb', :ensure => :present)[:type].should == :oracle
+      end
+
+      it "should not allow other types" do
+        proc { described_class.new(:name => 'testdb', :ensure => :present, :type => 'couchdb') }.should raise_error(Puppet::Error, /Invalid value/)
       end
     end
 
