@@ -1,0 +1,14 @@
+SYNTAX_VERSION 4
+
+ORACLE
+
+  HOME "/u01/app/oracle/product/11.2.0/dbhome_1"
+    DATABASE "OMLP" CONNECT "itouser/secret@host:1521/OMLP"
+      LOGFILE "/u01/app/oracle/diag/rdbms/omlp/OMLP/trace/alert_OMLP.log"
+      FILTER 118 "x not in y"
+    DATABASE "SIMPLE" CONNECT "itouser/secret@host:1521/SIMPLE"
+  HOME "/u01/app/oracle/product/11.2.0/dbhome_2"
+    DATABASE "FOO" CONNECT "itouser/secret@host:1521/FOO"
+      LOGFILE "/u01/app/oracle/diag/rdbms/foo/FOO/trace/alert_FOO.log"
+      FILTER 200 "y not in z"
+      FILTER 201 "foo in bar"

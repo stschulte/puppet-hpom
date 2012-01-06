@@ -16,38 +16,41 @@ Puppet::Type.type(:om_dbspi_database).provide(:dbspicfg) do
   end
 
   def self.parse_next_token(scanner)
+    token = nil
     scanner.skip(/(\s+|\n+|#.*?\n)+/)
     if scanner.scan(/"(.*?)"/) or scanner.scan(/(\S+)/)
-      scanner[1]
+      token = scanner[1]
     end
+    scanner.skip(/(\s+|\n+|#.*?\n)+/)
+    token
   end
 
   def self.instances
     self.initvars
     current_record = nil
-    last_setting = {}
+    current_settings = {}
     scanner = StringScanner.new(dbspicfg('-e'))
     until scanner.eos?
       case token = parse_next_token(scanner)
       when 'SYNTAX_VERSION'
-        @globalconfig['SYNTAXVERSION'] = parse_next_token(scanner)
+        @globalconfig['SYNTAX_VERSION'] = parse_next_token(scanner)
         current_record = nil
       when 'ORACLE'
-        last_setting['DBTYPE'] = :oracle
+        current_settings['DBTYPE'] = :oracle
         @records[current_record[:name]] = current_record if current_record
         current_record = nil
       when 'HOME'
-        last_setting['HOME'] = parse_next_token(scanner)
+        current_settings['HOME'] = parse_next_token(scanner)
         @records[current_record[:name]] = current_record if current_record
         current_record = nil
       when 'DATABASE'
         @records[current_record[:name]] = current_record if current_record
-        last_setting['DATABASE'] = parse_next_token(scanner)
+        current_settings['DATABASE'] = parse_next_token(scanner)
         current_record = {
           :ensure => :present,
-          :name   => last_setting['DATABASE'],
-          :home   => last_setting['HOME'],
-          :type   => last_setting['DBTYPE'],
+          :name   => current_settings['DATABASE'],
+          :home   => current_settings['HOME'],
+          :type   => current_settings['DBTYPE'],
           :filter => {}
         }
         if @records.include? current_record[:name]
@@ -75,7 +78,6 @@ Puppet::Type.type(:om_dbspi_database).provide(:dbspicfg) do
       else
         warning "Found unrecognized token: #{token}"
       end
-      scanner.skip(/(\s+|\n+|#.*?\n)+/)
     end
     @records[current_record[:name]] = current_record if current_record
 
@@ -92,55 +94,63 @@ Puppet::Type.type(:om_dbspi_database).provide(:dbspicfg) do
   end
 
   def self.flush(record)
-    tempfile = Tempfile.new('dbspi')
+    new_config = Tempfile.new('dbspi')
     if record[:ensure] == :absent
       @records.delete(record[:name])
     else
       @records[record[:name]] = record
     end
     begin
-      if syntax_version = @globalconfig['SYNTAX_VERSION']
-        stdin_file.write "SYNTAX_VERSION #{syntax_version}\n"
-        stdin_file.write ""
-      end
+      # Header defines the syntax version. I'm only aware of version 4 so that is the default
+      new_config.write "SYNTAX_VERSION #{@globalconfig['SYNTAX_VERSION'] || 4}\n\n"
       current_dbtype = nil
       current_home = nil
       @records.values.sort_by { |r| [r[:type], r[:home], r[:name]] }.each do |record|
+        unless record[:type] and record[:home]
+          warning "Database #{record[:name]} has no home or type specified. Skipping database."
+          next
+        end
         if current_dbtype != record[:type]
-          tempfile.write "#{record[:type]}\n"
+          unless current_dbtype.nil?
+            new_config.write "\n" # Add extra space if we just changed the db type
+          end
+          current_dbtype = record[:type]
+          new_config.write "#{record[:type].to_s.upcase}\n\n"
         end
         if current_home != record[:home]
-          tempfile.write "  HOME \"#{record[:home]}\"\n"
+          current_home = record[:home]
+          new_config.write "  HOME \"#{record[:home]}\"\n"
         end
         if record[:connect]
-          tempfile.write "    DATABASE \"#{record[:name]}\" CONNECT \"#{record[:connect]}\"\n"
+          new_config.write "    DATABASE \"#{record[:name]}\" CONNECT \"#{record[:connect]}\"\n"
         else
-          tempfile.write "    DATABASE \"#{record[:name]}\"\n"
+          new_config.write "    DATABASE \"#{record[:name]}\"\n"
         end
         if record[:logfile]
-          tempfile.write "      LOGFILE \"#{record[:logfile]}\"\n"
+          new_config.write "      LOGFILE \"#{record[:logfile]}\"\n"
         end
-        record[:filter].each do |k,v|
-          tempfile.write "      FILTER #{k} \"#{v}\"\n"
+        record[:filter].sort.each do |k,v|
+          new_config.write "      FILTER #{k} \"#{v}\"\n"
         end
       end
       if listener = @globalconfig['LISTENER']
         if connect_string = @globalconfig['LISTENER_CONNECT']
-          tempfile.write "  LISTENER \"#{listener}\" CONNECT \"#{connect_string}\"\n"
+          new_config.write "  LISTENER \"#{listener}\" CONNECT \"#{connect_string}\"\n"
         else
-          tempfile.write "  LISTENER \"#{listener}\"\n"
+          new_config.write "  LISTENER \"#{listener}\"\n"
         end
       end
-      tempfile.close
-      execute([command(:dbspicfg), '-i'], :stdinfile => tempfile.path)
+      new_config.close
+      execute([command(:dbspicfg), '-i'], :stdinfile => new_config.path)
     ensure
-      tempfile.close # doesnt matter if file is already closed
-      tempfile.unlink
+      new_config.close # doesnt matter if file is already closed
+      new_config.unlink
     end
   end
 
   def flush
     @property_hash[:name] ||= resource[:name]
+    @property_hash[:filter] ||= {}
     self.class.flush(@property_hash)
   end
 

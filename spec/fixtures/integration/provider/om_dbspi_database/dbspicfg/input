@@ -1,0 +1,23 @@
+SYNTAX_VERSION 4
+
+ORACLE
+
+  HOME "/u01/app/oracle/product/11.2.0/dbhome_1"
+    DATABASE "OMLE" CONNECT "itouser/secret@host:1521/OMLE"
+      LOGFILE "/u01/app/oracle/diag/rdbms/omle/OMLE/trace/alert_OMLE.log"
+      FILTER 16 "tablespace_name not in (select tablespace_name from dba_tablespaces where contents = 'UNDO')"
+      FILTER 206 "tablespace_name not in (select tablespace_name from dba_tablespaces where contents = 'UNDO')"
+    DATABASE "SIMPLE" CONNECT "itouser/secret@host:1521/SIMPLE"
+    DATABASE "OMLP" CONNECT "itouser/secret@host:1521/OMLP"
+      LOGFILE "/u01/app/oracle/diag/rdbms/omlp/OMLP/trace/alert_OMLP.log"
+      FILTER 118 "x not in y"
+  HOME "/u01/app/oracle/product/11.2.0/dbhome_2"
+    DATABASE "FOO"
+    CONNECT "itouser/secret@host:1521/FOO"
+
+# this database should have the new home
+
+      FILTER 200 "y not in z"
+      FILTER 201 "foo in bar"
+      LOGFILE "/u01/app/oracle/diag/rdbms/foo/FOO/trace/alert_FOO.log"
+  HOME "/u01/app/oracle/product/11.2.0/dbhome_2"
