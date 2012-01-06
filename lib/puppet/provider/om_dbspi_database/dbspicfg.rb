@@ -1,3 +1,6 @@
+require 'strscan'
+require 'tempfile'
+
 Puppet::Type.type(:om_dbspi_database).provide(:dbspicfg) do
 
   desc "Uses the dbspicfg command to export and import the
