@@ -144,4 +144,20 @@ Puppet::Type.type(:om_dbspi_database).provide(:dbspicfg) do
     self.class.flush(@property_hash)
   end
 
+  def create
+    @resource.class.validproperties.each do |property|
+      if value = @resource.should(property)
+        @property_hash[property] = value
+      end
+    end
+  end
+
+  def destroy
+    @property_hash[:ensure] = :absent
+  end
+
+  def exists?
+    get(:ensure) != :absent
+  end
+
 end
