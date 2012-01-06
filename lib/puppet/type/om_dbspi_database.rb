@@ -94,5 +94,10 @@ module Puppet
       defaultto :inclusive
     end
 
+    validate do
+      return if self[:ensure] == :absent
+      raise Puppet::Error, "The properties type and home are mandatory attributes" unless self[:type] and self[:home]
+    end
+
   end
 end
