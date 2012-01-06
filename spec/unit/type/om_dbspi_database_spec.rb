@@ -94,7 +94,7 @@ describe Puppet::Type.type(:om_dbspi_database) do
     end
 
     describe "for type" do
-      [:oracle].each do |type|
+      [:oracle, :informix].each do |type|
         it "should support #{type}" do
           proc { described_class.new(:name => 'testdb', :type => type, :ensure => :present) }.should_not raise_error
         end

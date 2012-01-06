@@ -42,7 +42,7 @@ module Puppet
     newproperty(:type) do
       desc "The type of the database. Currently only oracle is supported"
 
-      newvalues :oracle
+      newvalues :oracle, :informix
       defaultto :oracle
     end
 
