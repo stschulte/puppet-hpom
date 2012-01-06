@@ -164,6 +164,42 @@ configuration options:
 The provider uses the `ovconfget` and `ovconfchg` binaries to change the
 agent's config
 
+### om\_dbspi\_database
+
+If you use the database SPI from HP to monitor your database instances you can now
+use this type to configure the DB-SPI.
+
+The DB SPI uses a local configuration file on your database host. This file lists all
+your different database instances, the type of the database, information on how to
+connect to your database, the location of the alert logfile and possible custom filters.
+A filter is always applied to one specific metric and basically extends the sql query
+of the metric with a custom sql-where-statement.
+
+The configuration can now be described as the following
+
+    om_dbspi_database { 'TEST01':
+      ensure   => present,
+      type     => oracle,
+      home     => '/u01/app/oracle/product/11.2.0/dbhome_1',
+      logfile  => '/u01/app/oracle/diag/rdbms/test01/TEST01/trace/alert_TEST01.log,
+      connect  => 'user/password@host:1521/TEST01',
+      filter   => [
+        '16:tablespace_name not in (select tablespace_name from dba_tablespaces where contents = \'UNDO\')',
+        '206:tablespace_name not in (select tablespace_name from dba_tablespaces where contents = \'UNDO\')',
+      ]
+    }
+
+What now happens is that `dbspicfg -e` is executed which will list the current configuration
+and the output is parsed by a very limited parser. If a resource is out of sync and has changed, puppet
+will write out the new configuration to a temporarily created file. After that `dbspicfg -i` is
+executed and the file is passed as stdin. Puppet will then remove the file again as it most likely contains
+passwords in plaintext.
+
+Be aware that the parser may not be able to parse all statements of your current configuration. As a result
+puppet may silently remove these statements when creating a new configuration! So please test the new type
+on a test machine first or, even better, extend the integration tests with a configuration file that is used
+in your environment.
+
 Links
 -----
 * about the OVO API: http://www.blue-elephant-systems.com/content/view/294/314/
