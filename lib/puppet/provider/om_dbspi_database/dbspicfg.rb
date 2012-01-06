@@ -105,11 +105,12 @@ Puppet::Type.type(:om_dbspi_database).provide(:dbspicfg) do
       new_config.write "SYNTAX_VERSION #{@globalconfig['SYNTAX_VERSION'] || 4}\n\n"
       current_dbtype = nil
       current_home = nil
-      @records.values.sort_by { |r| [r[:type], r[:home], r[:name]] }.each do |record|
-        unless record[:type] and record[:home]
-          warning "Database #{record[:name]} has no home or type specified. Skipping database."
-          next
+      @records.values.reject { |r|
+        if r[:type].nil? or r[:home].nil?
+          warning "Database #{r[:name]} has no home or type specified. Skipping database."
+          true
         end
+      }.sort_by { |r| [r[:type], r[:home], r[:name]] }.each do |record|
         if current_dbtype != record[:type]
           unless current_dbtype.nil?
             new_config.write "\n" # Add extra space if we just changed the db type

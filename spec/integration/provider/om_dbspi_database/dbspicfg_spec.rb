@@ -147,29 +147,137 @@ describe Puppet::Type.type(:om_dbspi_database).provider(:dbspicfg), '(integratio
   end
 
   describe "when home is out of sync" do
-    it "should move database in new home section"
+    it "should move database in new home section" do
+      resource = Puppet::Type.type(:om_dbspi_database).new(
+        :name => 'OMLP',
+        :home => '/u01/app/oracle/product/11.2.0/dbhome_2'
+      )
+      run_in_catalog(resource)
+      @new_config.should == File.read(my_fixture('output_sync_home'))
+    end
   end
 
   describe "when connect is out of sync" do
-    it "should change the connect string"
+    it "should change the connect string" do
+      resource = Puppet::Type.type(:om_dbspi_database).new(
+        :name    => 'OMLE',
+        :connect => 'itouser/freaking_new_password@host:1521/OMLE',
+        :type    => :oracle,
+        :home    => '/u01/app/oracle/product/11.2.0/dbhome_1'
+      )
+      run_in_catalog(resource)
+      @new_config.should == File.read(my_fixture('output_sync_connect'))
+    end
   end
 
   describe "when database type is out of sync" do
-    it "should move database in new database type section"
+    it "should move database in new database type section" do
+      resource = Puppet::Type.type(:om_dbspi_database).new(
+        :name => 'FOO',
+        :type => :informix,
+        :home => '/u01/app/oracle/product/11.2.0/dbhome_2'
+      )
+      run_in_catalog(resource)
+      @new_config.should == File.read(my_fixture('output_sync_type'))
+    end
+
   end
 
   describe "when logfile is out of sync" do
-    it "should change logfile"
+    it "should change logfile" do
+      resource = Puppet::Type.type(:om_dbspi_database).new(
+        :name    => 'OMLE',
+        :logfile => '/newpath/alert.log',
+        :home    => '/u01/app/oracle/product/11.2.0/dbhome_1',
+        :type    => :oracle
+      )
+      run_in_catalog(resource)
+      @new_config.should == File.read(my_fixture('output_sync_logfile'))
+    end
+
   end
 
   describe "when filters are out of sync" do
-    it "should add new filter"
-    it "should remove filter"
-    it "should change filter"
+    it "should only add new filter with membership minimum" do
+      resource = Puppet::Type.type(:om_dbspi_database).new(
+        :name              => 'OMLE',
+        :type              => :oracle,
+        :home              => '/u01/app/oracle/product/11.2.0/dbhome_1',
+        :filter            => ['18:new filter','19:new filter2'],
+        :filter_membership => :minimum
+      )
+      run_in_catalog(resource)
+      @new_config.should == File.read(my_fixture('output_sync_filter_add'))
+    end
+
+    it "should remove filter with membership inclusive" do
+      resource = Puppet::Type.type(:om_dbspi_database).new(
+        :name              => 'OMLE',
+        :type              => :oracle,
+        :home              => '/u01/app/oracle/product/11.2.0/dbhome_1',
+        :filter            => [],
+        :filter_membership => :inclusive
+      )
+      run_in_catalog(resource)
+      @new_config.should == File.read(my_fixture('output_sync_filter_remove'))
+    end
+
+    it "should change filter" do
+      resource = Puppet::Type.type(:om_dbspi_database).new(
+        :name              => 'FOO',
+        :type              => :oracle,
+        :home              => '/u01/app/oracle/product/11.2.0/dbhome_2',
+        :filter            => [
+          '201:changed',
+          '300:added'
+        ]
+      )
+      run_in_catalog(resource)
+      @new_config.should == File.read(my_fixture('output_sync_filter_change'))
+    end
   end
 
   describe "when multiple resources are in the catalog" do
-    it "should do the right thing (tm)"
+    it "should do the right thing (tm)" do
+      resources = []
+      resources << Puppet::Type.type(:om_dbspi_database).new(
+        :name   => 'FOO',
+        :ensure => :absent
+      )
+      resources << Puppet::Type.type(:om_dbspi_database).new(
+        :name    => 'SIMPLE',
+        :ensure  => :present,
+        :type    => :informix,
+        :home    => '/u01/app/oracle/product/11.2.0/dbhome_1',
+        :logfile => '/new/simple/logfile',
+        :filter  => [
+          '100:new filter 100',
+          '110:new filter 110'
+        ]
+      )
+      resources << Puppet::Type.type(:om_dbspi_database).new(
+        :name    => 'OMLE',
+        :ensure  => :present,
+        :type    => :oracle,
+        :logfile => '/changed/location/for/OMLE',
+        :home    => '/new/home/special/for/OMLE',
+        :filter  => [
+          '16:tablespace_name not in (select tablespace_name from dba_tablespaces where contents = \'UNDO\')',
+          '17:new filter'
+        ]
+      )
+      resources << Puppet::Type.type(:om_dbspi_database).new(
+        :name    => 'OMLP',
+        :ensure  => :present,
+        :type    => :oracle,
+        :home    => '/u01/app/oracle/product/11.2.0/dbhome_1',
+        :connect => 'new_connect',
+        :filter  => []
+      )
+      described_class.stubs(:dbspicfg).with('-e').returns File.read(my_fixture('input_with_listener'))
+      run_in_catalog(*resources)
+      @new_config.should == File.read(my_fixture('output_multiplechanges'))
+    end
   end
 
 end
