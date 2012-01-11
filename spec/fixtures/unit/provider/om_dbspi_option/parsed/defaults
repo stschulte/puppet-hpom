@@ -1,0 +1,12 @@
+# just few default options
+ORA_LOW_LEVEL_SEGMENT_QUERY OFF
+ORA_0X16_REPORT_DETAILS OFF
+ORA_X16_VIEWS ON
+
+# some databases with collection set to on
+  # and some with collection set to off
+DATABASE01 ON
+DATABASE02   OFF
+DATABASE03 OFF
+
+DATABASE04 ON
