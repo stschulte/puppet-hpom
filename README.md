@@ -200,6 +200,37 @@ puppet may silently remove these statements when creating a new configuration! S
 on a test machine first or, even better, extend the integration tests with a configuration file that is used
 in your environment.
 
+## om\_dbspi\_option
+
+The DB SmartPlugin can be configured on a per node basis with one configuration file that is located on the
+target node: `/var/opt/OV/dbspi/defaults`. The configuration file may look like the following:
+
+    # a global setting
+    ORA_LOW_LEVEL_SEGMENT_QUERY ON
+
+    # collection on for 2 databases
+    DATABASE01 ON
+    DATABASE02 ON
+
+    # collection off for one database
+    DATABASE03 OFF
+
+A key-value-pair can now be expressed with the new resource type.
+
+Sample:
+
+    om_dbspi_option { 'ORA_LOW_LEVEL_SEGMENT_QUERY'
+      ensure => present,
+      value  => 'ON',
+    }
+    om_dbspi_option { 'DATABASE03'
+      ensure => present,
+      value  => 'OFF',
+    }
+    om_dbspi_option { 'DATABASE04'
+      ensure => absent,
+    }
+
 Links
 -----
 * about the OVO API: http://www.blue-elephant-systems.com/content/view/294/314/
