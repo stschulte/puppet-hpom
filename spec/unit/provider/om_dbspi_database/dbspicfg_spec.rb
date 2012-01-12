@@ -6,6 +6,7 @@ describe Puppet::Type.type(:om_dbspi_database).provider(:dbspicfg) do
 
   before :each do
     described_class.stubs(:suitable?).returns true
+    described_class.stubs(:command).with(:dbspicfg).returns '/var/opt/OV/bin/instrumentation/dbspicfg'
     Puppet::Type.type(:om_dbspi_database).stubs(:defaultprovider).returns described_class
   end
 

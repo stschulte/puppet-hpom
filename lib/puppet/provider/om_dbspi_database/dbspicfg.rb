@@ -29,7 +29,10 @@ Puppet::Type.type(:om_dbspi_database).provide(:dbspicfg) do
     self.initvars
     current_record = nil
     current_settings = {}
-    scanner = StringScanner.new(dbspicfg('-e'))
+    scanner = nil
+    Puppet::Util::Execution.withenv(:PATH => File.dirname(command(:dbspicfg))) do
+      scanner = StringScanner.new(dbspicfg('-e'))
+    end
     until scanner.eos?
       case token = parse_next_token(scanner)
       when 'SYNTAX_VERSION'
