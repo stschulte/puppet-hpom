@@ -1,0 +1,21 @@
+SYNTAX_VERSION 4
+
+INFORMIX
+
+  HOME "/u01/app/oracle/product/11.2.0/dbhome_1"
+    DATABASE "SIMPLE" CONNECT "itouser/secret@host:1521/SIMPLE"
+      LOGFILE "/new/simple/logfile"
+      FILTER 100 "new filter 100"
+      FILTER 110 "new filter 110"
+
+ORACLE
+
+  HOME "/new/home/special/for/OMLE"
+    DATABASE "OMLE" CONNECT "itouser/secret@host:1521/OMLE"
+      LOGFILE "/changed/location/for/OMLE"
+      FILTER 16 "tablespace_name not in (select tablespace_name from dba_tablespaces where contents = 'UNDO')"
+      FILTER 17 "new filter"
+  HOME "/u01/app/oracle/product/11.2.0/dbhome_1"
+    DATABASE "OMLP" CONNECT "new_connect"
+      LOGFILE "/u01/app/oracle/diag/rdbms/omlp/OMLP/trace/alert_OMLP.log"
+  LISTENER "listener" CONNECT ""

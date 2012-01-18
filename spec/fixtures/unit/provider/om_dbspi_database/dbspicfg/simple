@@ -1,0 +1,7 @@
+SYNTAX_VERSION 4
+
+ORACLE
+
+  HOME "/u01/app/oracle/product/11.2.0/dbhome_1"
+    DATABASE "OMLE" CONNECT "itouser/secret@host:1521/OMLE"
+      LOGFILE "/u01/app/oracle/diag/rdbms/omle/OMLE/trace/alert_OMLE.log"
