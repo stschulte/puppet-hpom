@@ -1,0 +1,9 @@
+[depl.mechanisms.ssh]
+COPY=scp  @:
+EXEC=ssh -q -2 @ 
+[eaagt]
+OPC_BUFLIMIT_SEVERITY=major
+OPC_HBP_INTERVAL_ON_AGENT=-1
+OPC_INSTALLATION_TIME=Mon Nov  8 14:51:51 EST 2010
+[eaagt.lic.data]
+ovoagt=1

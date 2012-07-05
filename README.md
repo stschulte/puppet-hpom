@@ -231,6 +231,31 @@ Sample:
       ensure => absent,
     }
 
+## om\_config
+
+The configuration of an agent can be queried with the `ovconfchg` command and sometimes it makes sense to set custom
+configuration options you can later query in scripts or to change default agentsettings like timeouts.
+
+An agent setting can now be expressed with an `om_config` resource. To make sure a specific setting has a certain value:
+
+    om_config { 'coda.comm/SERVER_BIND_ADDR':
+      ensure => present,
+      value  => 'localhost',
+    }
+
+Notice that the OM agent uses an ini like configuration scheme and an option is only unique inside a specific namespace. Because
+in puppet the resource name has to be unique, the resource name has to be of the form `<namespace>/<configsetting>`.
+
+So in the example above puppet will issue an `ovconfchg -ns coda.comm -set SERVER_BIND_ADDR localhost` if the agent setting is
+out of sync.
+
+Puppet can also be used to make sure a setting is cleared:
+
+
+    om_config { 'eaagt/OPC_TRACE':
+      ensure => absent,
+    }
+
 Links
 -----
 * about the OVO API: http://www.blue-elephant-systems.com/content/view/294/314/

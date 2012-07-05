@@ -1,0 +1,10 @@
+
+[depl.mechanisms.ssh]
+
+COPY=scp  @:
+EXEC=ssh -q -2 @ 
+
+[eaagt]
+
+[eaagt.lic.data]
+ovoagt=1

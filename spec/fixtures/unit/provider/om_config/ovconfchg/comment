@@ -1,0 +1,12 @@
+# comment on top
+[depl.mechanisms.ssh]
+COPY=scp  @:
+EXEC=ssh -q -2 @ 
+[eaagt]
+;before a value
+; with leading space or empty
+;
+#
+[eaagt.lic.data]
+ovoagt=1
+;last line is also a comment

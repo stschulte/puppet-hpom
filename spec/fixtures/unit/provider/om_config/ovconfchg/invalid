@@ -1,0 +1,4 @@
+foo=bar
+[depl.mechanisms.ssh]
+no value
+EXEC=ssh -q -2 @ 
