@@ -3,7 +3,6 @@
 require 'spec_helper'
 
 describe Puppet::Type.type(:om_dbspi_database).provider(:dbspicfg), '(integration)' do
-  include PuppetSpec::Files
 
   before :each do
     described_class.stubs(:command).with(:dbspicfg).returns '/var/opt/OV/bin/instrumentation/dbspicfg'

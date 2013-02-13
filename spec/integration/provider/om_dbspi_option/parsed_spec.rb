@@ -4,13 +4,13 @@ require 'spec_helper'
 require 'puppet/file_bucket/dipper'
 
 describe Puppet::Type.type(:om_dbspi_option).provider(:parsed), '(integration)' do
-  include PuppetSpec::Files
+  include PuppetlabsSpec::Files
 
   before :each do
     described_class.stubs(:suitable?).returns true
     Puppet::Type.type(:om_dbspi_option).stubs(:defaultprovider).returns described_class
 
-    @fake_defaults = tmpfile('om_dbspi_option_test')
+    @fake_defaults = tmpfilename('om_dbspi_option_test')
     FileUtils.cp(my_fixture('input'), @fake_defaults)
     described_class.stubs(:default_target).returns @fake_defaults
 

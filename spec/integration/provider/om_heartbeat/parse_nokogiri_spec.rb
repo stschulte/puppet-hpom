@@ -4,10 +4,10 @@ require 'spec_helper'
 require 'nokogiri'
 
 describe Puppet::Type.type(:om_heartbeat).provider(:parse_nokogiri), '(integration)' do
-  include PuppetSpec::Files
+  include PuppetlabsSpec::Files
 
   before :each do
-    @xml = tmpfile('puppet_heartbeat.xml')
+    @xml = tmpfilename('puppet_heartbeat.xml')
     FileUtils.cp(my_fixture('input.xml'), @xml)
     described_class.stubs(:configfile).returns @xml
     described_class.stubs(:suitable?).returns true

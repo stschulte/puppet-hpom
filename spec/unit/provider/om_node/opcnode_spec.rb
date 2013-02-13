@@ -1,10 +1,8 @@
 #!/usr/bin/env ruby
 
 require 'spec_helper'
-require 'puppet_spec/fixtures'
 
 describe Puppet::Type.type(:om_node).provider(:opcnode) do
-  include PuppetSpec::Fixtures
 
   let(:sample_output) do
     fakeoutput = my_fixture('opcnodehelper_output')
