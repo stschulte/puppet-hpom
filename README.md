@@ -434,5 +434,6 @@ No special development requirements
 
 ## Authors
 
+* stschulte [stschulte](https://github.com/stschulte)
 * Jeremy Grant <Jeremy.Grant@outlook.com>
 
