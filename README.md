@@ -1,19 +1,188 @@
-Puppet Operations Manager Module
-=================================
+# ovpa
 
-HP Operations Manager is a monitoring tool by Hewlett Packard. This repository
-tries to provide puppet types and providers to ease the management of HP Operations
-Manager nodes.
+#### Table of Contents
 
-Installation
-------------
+1. [Overview](#overview)
+2. [Module Description - What the module does and why it is useful](#module-description)
+    * [What is managed](#what-is-managed)
+      * [Files](#files)
+      * [Packages](#packages)
+      * [Services](#services)
+      * [Other Resources](#other-resources)
+    * [Dependencies](#dependencies)
+3. [Usage - Configuration options and additional functionality](#usage)
+    * [ENC configuration and overrides](#enc-setup)
+4. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
+    * [Classes and parameters](#classes-and-parameters)
+    * [Defined Types Provided](#defined-types-provided)
+    * [Facts Provided](#facts-provided)
+5. [Limitations - OS compatibility, etc.](#limitations)
+6. [Development - Guide for contributing to the module](#development)
+7. [Authors](#authors)
+8. [Change Log](https://github.com/exodusftw/puppet-hpom/tree/master/CHANGELOG.md)
 
-Generally you need the following
+## Overview
 
-* Your HP Operations Manager server should run on Unix (OMU) or Linux (OML), Windows (OMW) is
-  currently not supported. The server types have only been tested on Linux and with OML 9. Older
-  versions /might/ work out of the box or with slight changes (different paths, command line
-  parameters etc).
+Manages HP Operations and Performance Agent (HPOM/OVPA)
+
+To retrieve from Puppet Forge either:
+* [Click Here](https://forge.puppetlabs.com/exodusftw/ovpa)
+* Execute Command `puppet module install exodusftw-ovpa`
+
+## Module Description
+
+Manages the installation, configuration, and maintenance of the HP Operations Manager Monitoring and Performance Reporting Agent
+
+**In order to get started with installation, ensure the Packages listed** [Here](#packages) **are available in your package manager of Choice:**
+
+* `Preferred Package Managers`:
+  * [Zypper](https://en.opensuse.org/Portal:Zypper)
+  * [YUM](http://yum.baseurl.org/)
+  * [YaST](https://en.opensuse.org/Portal:YaST)
+  * [RUG](https://www.suse.com/documentation/sled10/sled_deployment_sp1/data/sec_onlineupdate_rug.html)
+
+* `Preferred System Management Tools`:
+  * [Spacewalk](http://spacewalk.redhat.com/)
+  * [Red Hat Network Satellite](https://access.redhat.com/products/red-hat-satellite)
+  * [SUSE Manager](https://www.suse.com/products/suse-manager/)
+
+**Also - Please update the following variables for your environment as necessary in** [params.pp](https://github.com/exodusftw/puppet-hpom/tree/master/manifests/params.pp)
+
+* `policy_server`:
+  * Agent Config Variable to register with proper management system 
+    * Namespace: `sec.core.auth`
+    * Variable: `MANAGER`
+
+* `cert_server`:
+  * Agent Config Variable to send certificate request to proper certificate server
+    * Namespace: `sec.cm.client`
+    * Variable: `CERTIFICATE_SERVER`
+
+* `policy_server_CoreID`:
+  * Agent Config Variable for management system Core ID
+    * Namespace: `sec.core.auth`
+    * Variable: `MANAGER_ID`
+
+* `minversion`:
+  * Required Minimum version of OM Agent
+    * Can be overridden in ENC to latest Minimum Version
+    * Example: `11.14.014`
+
+* `version`:
+  * Used for Version Comparison against `minversion` value
+    * Can be overriden in ENC to values: 
+    * `latest`
+    * `present`
+
+
+### What Is Managed
+
+#### Files
+* `/etc/pki/rpm-gpg/hpPublicKey.pub`
+* `/etc/pki/rpm-gpg/hpPublicKey2048.pub`
+
+#### Packages
+* `HPOvOpsAgt` 
+* `HPOvConf`
+* `HPOvPerfAgt`
+* `HPOvSecCC`
+* `HPOvAgtLc`
+* `HPOvPerlA`
+* `HPOvCtrl`
+* `HPOvXpl`
+* `HPOvEaAgt`
+* `HPOvPerfMI`
+* `HPOvDepl`
+* `HPOvSecCO`
+* `HPOvGlanc`
+* `HPOvBbc`
+* `HPOvPacc`
+
+#### Services
+* `OVCtrl`
+* `ovcd`
+* `ovconfd`
+* `opcacta`
+* `ovbbccb`
+* `opcle`
+* `scope`
+* `alarm`
+* `perfd` - Now Deprecated - No Longer Managed
+* `coda`
+
+#### Other Resources
+
+* exec entries
+  * `hp_rpmgpg_key_exec`
+  * `hp_rpmgpg_key_exec_2048`
+  * `Configure_OML`
+  * `Activate_OML`
+  * `License_OM`
+  * `License_Glance`
+  * `Config_Refresh`
+  * `Stop_Agent`
+  * `Restart_Agent`
+  * `Configure_Nodename`
+  * `Configure_IP`
+  * `Configure_Client_Bind`
+  * `Configure_Server_Bind`
+  * `Set_Sec_Auth_Manager`
+  * `Set_Sec_Auth_Manager_ID`
+  * `Set_Cert_Manager`
+
+### Dependencies
+No dependent classes/modules required
+
+## Usage
+Example:
+```puppet
+class { 'ovpa':
+  policy_server        => $ovpa::params::policy_server ,
+  cert_server          => $ovpa::params::cert_server ,
+  policy_server_coreID => $ovpa::params::policy_server_coreID ,
+  minversion           => $ovpa::params::minversion ,
+  version              => $ovpa::params::version ,
+}
+```
+
+### ENC Setup
+Overrides are available for:
+* `policy_server`
+* `policy_server_CoreID`
+* `cert_server`
+* `minversion`
+* `version` - Defaults to `latest` if installed version matches `minversion`
+  * To force installation of latest version - ensure latest RPM's are present in backend YUM/SMT Repo
+  * Configure necessary Matcher values in ENC and set value to: `latest`
+
+## Reference
+
+### Classes and Parameters
+* `ovpa`: The main module class [Code Detail](https://github.com/exodusftw/puppet-hpom/tree/master/manifests/init.pp)
+  * `policy_server`: Sets the Agent Config Variable for: `MANAGER` to register with proper management system
+  * `cert_server`: Sets the Agent Config Variable for: `CERTIFICATE_SERVER` to send certificate request to proper certificate server
+  * `policy_server_CoreID`: Sets the Agent Config Variable for: `MANAGER_ID`
+  * `minversion`: Required Minimum version of OM Agent - can be overridden in ENC to latest Minimum Version (i.e. `11.14.014`)
+  * `version`: Used for Version Comparison against `minversion` value - Can be overriden in ENC to values: `latest` or `present`
+* `ovpa::conf`: Manages Agent configuration to handle hostname/IP changes [Code Detail](https://github.com/exodusftw/puppet-hpom/tree/master/manifests/conf.pp)
+* `ovpa::install`: Ensures Agent Packages are installed and Configured [Code Detail](https://github.com/exodusftw/puppet-hpom/tree/master/manifests/install.pp)
+* `ovpa::activate`: Ensure Agent is Activated with Proper OM management Server [Code Detail](https://github.com/exodusftw/puppet-hpom/tree/master/manifests/activate.pp)
+* `ovpa::params`: Default Params class [Code Detail](https://github.com/exodusftw/puppet-hpom/tree/master/manifests/params.pp)
+* `ovpa::proc`: Manages and Ensures Agent process are running [Code Detail](https://github.com/exodusftw/puppet-hpom/tree/master/manifests/proc.pp)
+
+### Facts Provided
+* HPOM/OVPA Facts - [Additional Code Detail](https://github.com/exodusftw/puppet-hpom/tree/master/lib/facter/opcagtfacts.rb)
+  * `opcagtversion`: Installed version of HP Operations Agent
+  * `opcprimarymgr`: Agent Config Variable: `OPC_PRIMARY_MGR` - Primary Manager for Receiving Agent Events/Communications
+  * `opc_nodename`: Agent Config Variable: `OPC_NODENAME` - Configured Hostname for HPOM Agent
+  * `opc_ip_address`: Agent Config Variable: `OPC_IP_ADDRESS` - Configured IP Address for HPOM Agent
+  * `opc_server_bind`: Agent Config Variable: `SERVER_BIND_ADDR` - Configured Server Bind Address for HPOM Agent
+  * `opc_client_bind`: Agent Config Variable: `CLIENT_BIND_ADDR` - Configured Client Bind Address for HPOM Agent
+  * `opcsecmgr`: Agent Config Variable: `MANAGER` - Configured Policy and Cert Manager for HPOM Agent
+
+### Defined Types Provided
+None
+
 * For the om\_node type to work you need the HP OVO API installed. You should be able to get
   the API for free if you already own a HP OML license. You also have to install the perl
   bindings for the OVO API. Installation instructions can be found in the links section.
@@ -22,16 +191,6 @@ Generally you need the following
 * To be able to use the custom types in this repository make sure that you copy the lib directory
   in a valid module directory. You also have to active `pluginsync` in your agent's config.
 
-New facts
----------
-* `opcagtversion`: The version of the agent that is running on the node
-
-New functions
--------------
-(currently none)
-
-New custom types
-----------------
 
 ### om\_node type
 
@@ -260,3 +419,21 @@ Links
 -----
 * about the OVO API: http://www.blue-elephant-systems.com/content/view/294/314/
 * installation instructions: http://www.blue-elephant-systems.com/component/option,com_docman/task,doc_download/gid,118/Itemid,141/
+
+## Limitations
+
+Tested on:
+* RHEL 5
+* RHEL 6
+* RHEL 7
+* SLES 10sp4
+* SLES 11 (SP1, SP2, SP3)
+
+## Development
+No special development requirements
+
+## Authors
+
+* Stefan Schulte [stschulte](https://github.com/stschulte)
+* Jeremy Grant <Jeremy.Grant@outlook.com>
+
