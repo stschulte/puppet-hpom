@@ -4,9 +4,9 @@
   "author": "jeremy.grant@outlook.com",
   "license": "Apache-2.0",
   "summary": "Manages the installation and configuration of the HP Operations Manager Agent",
-  "source": "https://github.com/exodusftw/puppet-ovpa",
-  "project_page": "https://github.com/exodusftw/puppet-ovpa",
-  "issues_url": "https://github.com/exodusftw/puppet-ovpa/issues",
+  "source": "https://github.com/exodusftw/puppet-hpom",
+  "project_page": "https://github.com/exodusftw/puppet-hpom",
+  "issues_url": "https://github.com/exodusftw/puppet-hpom/issues",
   "operatingsystem_support": [
     {
       "operatingsystem": "RedHat",

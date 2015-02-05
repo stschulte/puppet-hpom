@@ -1,1 +1,1 @@
-include puppet-ovpa
+include puppet-hpom
