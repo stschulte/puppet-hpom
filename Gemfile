@@ -6,8 +6,10 @@ facterversion = ENV.key?('FACTER_VERSION') ? ENV['FACTER_VERSION'] : ['>= 1.6']
 gem 'puppet', puppetversion
 gem 'puppetlabs_spec_helper', '>= 0.1.0'
 gem 'facter', facterversion
-gem 'nokogiri', :require => false
 
 unless RUBY_VERSION =~ /^1.8/
   gem 'coveralls', :require => false
+  gem 'nokogiri'
+else
+  gem 'nokogiri', '~> 1.5.10'
 end
