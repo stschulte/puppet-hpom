@@ -2,6 +2,7 @@ Puppet Operations Manager Module
 =================================
 
 [![Build Status](https://travis-ci.org/stschulte/puppet-hpom.png?branch=master)](https://travis-ci.org/stschulte/puppet-hpom)
+[![Coverage Status](https://coveralls.io/repos/stschulte/puppet-hpom/badge.svg)](https://coveralls.io/r/stschulte/puppet-hpom)
 
 HP Operations Manager is a monitoring tool by Hewlett Packard. This repository
 tries to provide puppet types and providers to ease the management of HP Operations
