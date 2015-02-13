@@ -1,9 +1,13 @@
 Puppet Operations Manager Module
 =================================
 
+[![Build Status](https://travis-ci.org/stschulte/puppet-hpom.png?branch=master)](https://travis-ci.org/stschulte/puppet-hpom)
+
 HP Operations Manager is a monitoring tool by Hewlett Packard. This repository
 tries to provide puppet types and providers to ease the management of HP Operations
-Manager nodes.
+Manager nodes. This will help you develop your own puppet classes to integrate the
+configuration of your servers and applications with the monitorig of these services.
+
 
 Installation
 ------------
@@ -25,10 +29,6 @@ Generally you need the following
 New facts
 ---------
 * `opcagtversion`: The version of the agent that is running on the node
-
-New functions
--------------
-(currently none)
 
 New custom types
 ----------------
@@ -278,6 +278,16 @@ Puppet can also be used to make sure a setting is cleared:
 om_config { 'eaagt/OPC_TRACE':
   ensure => absent,
 }
+```
+
+Running the tests
+-----------------
+
+The easiest way to run the tests is via bundler
+
+```bash
+bundle install
+bundle exec rake spec SPEC_OPTS='--format documentation'
 ```
 
 Links
