@@ -50,49 +50,55 @@ supported and have to be performed manually (e.g. changing a node's label).
 
 Example usage:
 
-    om_node { 'testnode01.example.com':
-      ensure             => present,
-      label              => 'testnode01',
-      ipaddress          => '10.0.0.1',
-      network_type       => 'NETWORK_IP',
-      machine_type       => 'MACH_BBC_LX26RPM_X64',
-      communication_type => 'COMM_BBC',
-      node_type          => 'CONTROLLED',
-      dynamic_ip         => no,
-      layout_groups      => [
-        'Linux/Webserver',
-        '/CustomHierarchy/physical/rz10',
-      ],
-      node_groups        => [
-        'linux',
-        'webserver',
-        'basic',
-      ],
-    }
+```puppet
+om_node { 'testnode01.example.com':
+  ensure             => present,
+  label              => 'testnode01',
+  ipaddress          => '10.0.0.1',
+  network_type       => 'NETWORK_IP',
+  machine_type       => 'MACH_BBC_LX26RPM_X64',
+  communication_type => 'COMM_BBC',
+  node_type          => 'CONTROLLED',
+  dynamic_ip         => no,
+  layout_groups      => [
+    'Linux/Webserver',
+    '/CustomHierarchy/physical/rz10',
+  ],
+  node_groups        => [
+    'linux',
+    'webserver',
+    'basic',
+  ],
+}
+```
 
 because the type makes use of some default values the above example can also be written as
 
-    om_node { 'testnode01.example.com':
-      ensure             => present,
-      label              => 'testnode01',
-      ipaddress          => '10.0.0.1',
-      machine_type       => 'MACH_BBC_LX26RPM_X64',
-      dynamic_ip         => no,
-      layout_groups      => [
-        'Linux/Webserver',
-        '/CustomHierarchy/physical/rz10',
-      ],
-      node_groups        => [
-        'linux',
-        'webserver',
-        'basic',
-      ],
-    }
+```puppet
+om_node { 'testnode01.example.com':
+  ensure             => present,
+  label              => 'testnode01',
+  ipaddress          => '10.0.0.1',
+  machine_type       => 'MACH_BBC_LX26RPM_X64',
+  dynamic_ip         => no,
+  layout_groups      => [
+    'Linux/Webserver',
+    '/CustomHierarchy/physical/rz10',
+  ],
+  node_groups        => [
+    'linux',
+    'webserver',
+    'basic',
+  ],
+}
+```
 
 You get the best benefit if you use storeconfig and every puppet node exports a `om_node` resource.
 On you OML master you now just have to collect all OM nodes:
 
-    Om_node<<| |>>
+```puppet
+Om_node<<| |>>
+```
 
 ### om\_heartbeat type
 
@@ -103,23 +109,27 @@ as an example on how to parse xml files and configure entries with puppet
 
 The heartbeat configuration file has the following basic structure:
 
-    <OVOHeartBeat>
-      <Hosts>
-        <Host name="foo.domain.tld"/>
-      </Hosts>
-      <HeartBeats>
-        <HeartBeat name="hearbeat01"/>
-          <Rule host="foo.domain.tld"/>
-        </HeartBeat>
-      </HeartBeats>
-    </OVOHeartBeat>
+```xml
+<OVOHeartBeat>
+  <Hosts>
+    <Host name="foo.domain.tld"/>
+  </Hosts>
+  <HeartBeats>
+    <HeartBeat name="hearbeat01"/>
+      <Rule host="foo.domain.tld"/>
+    </HeartBeat>
+  </HeartBeats>
+</OVOHeartBeat>
+```
 
 The puppet type can now be used to describe the heartbeat configuration. The above example can be expressed like this
 
-    om_heartbeat { 'foo.domain.tld':
-      ensure     => present,
-      heartbeats => [ 'heartbeat01' ],
-    }
+```puppet
+om_heartbeat { 'foo.domain.tld':
+  ensure     => present,
+  heartbeats => [ 'heartbeat01' ],
+}
+```
 
 You have to have nokogiri installed to be able to use the nokogiri provider (the only one so far).
 
@@ -134,32 +144,36 @@ want to monitor as a resource.
 
 Sample usage:
 
-    om_fsmon { '/mnt/a':
-      warning  => 10,
-      minor    => 20,
-      major    => 30,
-      critical => 40,
-    }
-    om_fsmon { '/mnt/b':
-      warning  => '50',
-      minor    => absent, # remove any special threshold
-      major    => absent, # remove any special threshold
-      critical => absent, # remove any special threshold
-    )
-    om_fsmon { '/mnt/c':
-      warning  => 101, # never raise a warning
-      minor    => 101, # never raise a minor message
-      major    => 101, # never raise a major message
-      critical => 101, # never raise a critical message
-    )
+```puppet
+om_fsmon { '/mnt/a':
+  warning  => 10,
+  minor    => 20,
+  major    => 30,
+  critical => 40,
+}
+om_fsmon { '/mnt/b':
+  warning  => '50',
+  minor    => absent, # remove any special threshold
+  major    => absent, # remove any special threshold
+  critical => absent, # remove any special threshold
+)
+om_fsmon { '/mnt/c':
+  warning  => 101, # never raise a warning
+  minor    => 101, # never raise a minor message
+  major    => 101, # never raise a major message
+  critical => 101, # never raise a critical message
+)
+```
 
 If you apply a catalog with the resources above, puppet will finally set the following
 configuration options:
 
-    SpaceUtilWarningThreshold=80,/mnt/a=10,/mnt/b=50,/mnt/c=101
-    SpaceUtilMinorThreshold=85,/mnt/a=20,/mnt/c=101
-    SpaceUtilMajorThreshold=90,/mnt/a=30,/mnt/c=101
-    SpaceUtilCriticalThreshold=95,/mnt/a=40,/mnt/c=101
+```text
+SpaceUtilWarningThreshold=80,/mnt/a=10,/mnt/b=50,/mnt/c=101
+SpaceUtilMinorThreshold=85,/mnt/a=20,/mnt/c=101
+SpaceUtilMajorThreshold=90,/mnt/a=30,/mnt/c=101
+SpaceUtilCriticalThreshold=95,/mnt/a=40,/mnt/c=101
+```
 
 The provider uses the `ovconfget` and `ovconfchg` binaries to change the
 agent's config
@@ -177,17 +191,19 @@ of the metric with a custom sql-where-statement.
 
 The configuration can now be described as the following
 
-    om_dbspi_database { 'TEST01':
-      ensure   => present,
-      type     => oracle,
-      home     => '/u01/app/oracle/product/11.2.0/dbhome_1',
-      logfile  => '/u01/app/oracle/diag/rdbms/test01/TEST01/trace/alert_TEST01.log,
-      connect  => 'user/password@host:1521/TEST01',
-      filter   => [
-        '16:tablespace_name not in (select tablespace_name from dba_tablespaces where contents = \'UNDO\')',
-        '206:tablespace_name not in (select tablespace_name from dba_tablespaces where contents = \'UNDO\')',
-      ]
-    }
+```puppet
+om_dbspi_database { 'TEST01':
+  ensure   => present,
+  type     => oracle,
+  home     => '/u01/app/oracle/product/11.2.0/dbhome_1',
+  logfile  => '/u01/app/oracle/diag/rdbms/test01/TEST01/trace/alert_TEST01.log,
+  connect  => 'user/password@host:1521/TEST01',
+  filter   => [
+    '16:tablespace_name not in (select tablespace_name from dba_tablespaces where contents = \'UNDO\')',
+    '206:tablespace_name not in (select tablespace_name from dba_tablespaces where contents = \'UNDO\')',
+  ]
+}
+```
 
 What now happens is that `dbspicfg -e` is executed which will list the current configuration
 and the output is parsed by a very limited parser. If a resource is out of sync and has changed, puppet
@@ -205,31 +221,35 @@ in your environment.
 The DB SmartPlugin can be configured on a per node basis with one configuration file that is located on the
 target node: `/var/opt/OV/dbspi/defaults`. The configuration file may look like the following:
 
-    # a global setting
-    ORA_LOW_LEVEL_SEGMENT_QUERY ON
+```text
+# a global setting
+ORA_LOW_LEVEL_SEGMENT_QUERY ON
 
-    # collection on for 2 databases
-    DATABASE01 ON
-    DATABASE02 ON
+# collection on for 2 databases
+DATABASE01 ON
+DATABASE02 ON
 
-    # collection off for one database
-    DATABASE03 OFF
+# collection off for one database
+DATABASE03 OFF
+```
 
 A key-value-pair can now be expressed with the new resource type.
 
 Sample:
 
-    om_dbspi_option { 'ORA_LOW_LEVEL_SEGMENT_QUERY'
-      ensure => present,
-      value  => 'ON',
-    }
-    om_dbspi_option { 'DATABASE03'
-      ensure => present,
-      value  => 'OFF',
-    }
-    om_dbspi_option { 'DATABASE04'
-      ensure => absent,
-    }
+```puppet
+om_dbspi_option { 'ORA_LOW_LEVEL_SEGMENT_QUERY'
+  ensure => present,
+  value  => 'ON',
+}
+om_dbspi_option { 'DATABASE03'
+  ensure => present,
+  value  => 'OFF',
+}
+om_dbspi_option { 'DATABASE04'
+  ensure => absent,
+}
+```
 
 ## om\_config
 
@@ -238,10 +258,12 @@ configuration options you can later query in scripts or to change default agents
 
 An agent setting can now be expressed with an `om_config` resource. To make sure a specific setting has a certain value:
 
-    om_config { 'coda.comm/SERVER_BIND_ADDR':
-      ensure => present,
-      value  => 'localhost',
-    }
+```puppet
+om_config { 'coda.comm/SERVER_BIND_ADDR':
+  ensure => present,
+  value  => 'localhost',
+}
+```
 
 Notice that the OM agent uses an ini like configuration scheme and an option is only unique inside a specific namespace. Because
 in puppet the resource name has to be unique, the resource name has to be of the form `<namespace>/<configsetting>`.
@@ -252,9 +274,11 @@ out of sync.
 Puppet can also be used to make sure a setting is cleared:
 
 
-    om_config { 'eaagt/OPC_TRACE':
-      ensure => absent,
-    }
+```puppet
+om_config { 'eaagt/OPC_TRACE':
+  ensure => absent,
+}
+```
 
 Links
 -----
